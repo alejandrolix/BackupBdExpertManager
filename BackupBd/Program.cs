@@ -13,5 +13,3 @@ copiaSeguridad.EliminarBackupsMasDe5Dias();
 
 EnvioCorreo envioCorreo = new EnvioCorreo(esContenedor, copiaSeguridad.UrlBackupAGenerar);
 envioCorreo.EnviarCorreo();
-
-Console.WriteLine("Correo enviado!");

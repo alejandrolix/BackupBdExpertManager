@@ -98,6 +98,8 @@ namespace BackupBd
                 Console.WriteLine(e);
                 throw;
             }
+
+            Console.WriteLine("Correo enviado!");
         }
     }
 }
