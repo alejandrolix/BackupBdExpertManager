@@ -11,9 +11,7 @@ CopiaSeguridad copiaSeguridad = new CopiaSeguridad(esContenedor);
 copiaSeguridad.HacerCopia();
 copiaSeguridad.EliminarBackupsMasDe5Dias();
 
-Console.WriteLine("bd exportada. Enviando por mail");
-
-EnvioCorreo envioCorreo = new EnvioCorreo(esContenedor, copiaSeguridad.NombreBackupAGenerar);
+EnvioCorreo envioCorreo = new EnvioCorreo(esContenedor, copiaSeguridad.UrlBackupAGenerar);
 envioCorreo.EnviarCorreo();
 
 Console.WriteLine("Correo enviado!");
