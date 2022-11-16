@@ -63,6 +63,11 @@ namespace BackupBd
                 UrlArchivoBackup = UrlArchivoBackup + $"backup_{DateTime.Now:dd}_{DateTime.Now:MM}_{DateTime.Now:yyyy}.bak";
             }
 
+            if (File.Exists(UrlArchivoBackup))
+            {
+                File.Delete(UrlArchivoBackup);
+            }
+
             try
             {
                 using (SqlConnection conexion = new SqlConnection(CadConexionBd))
