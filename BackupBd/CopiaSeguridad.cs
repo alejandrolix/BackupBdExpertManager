@@ -105,15 +105,13 @@ namespace BackupBd
 
         public void EliminarBackupsMasDe5Dias()
         {
+            List<string> archivos = Directory.GetFiles(UrlCarpetaBackups)
+                                             .Where(archivo => archivo.Contains("backup_"))
+                                             .ToList();
             try
             {
-                foreach (string archivo in Directory.GetFiles(UrlCarpetaBackups))
+                foreach (string archivo in archivos)
                 {
-                    if (!archivo.Contains("backup_"))
-                    {
-                        continue;
-                    }
-
                     string[] partesNombreArchivo = archivo.Split(SeparadorCarpetas);
                     string nombreArchivoConFecha = partesNombreArchivo[partesNombreArchivo.Length - 1];
                     int dia = int.Parse(nombreArchivoConFecha.Substring(7, 2));
