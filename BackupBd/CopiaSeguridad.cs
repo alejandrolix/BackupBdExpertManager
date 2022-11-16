@@ -10,8 +10,9 @@ namespace BackupBd
     internal class CopiaSeguridad
     {
         private string? CadConexionBd;
-        public string? UrlArchivoBackup { get; set; }
+        private string? UrlArchivoBackup { get; set; }
         private string EsContenedor;
+        public string NombreBackupAGenerar { get; set; }
 
         public CopiaSeguridad(string esContenedor)
         {
@@ -60,19 +61,33 @@ namespace BackupBd
         {
             if (EsContenedor == "S")
             {
-                UrlArchivoBackup = UrlArchivoBackup + $"backup_{DateTime.Now:dd}_{DateTime.Now:MM}_{DateTime.Now:yyyy}.bak";
+                NombreBackupAGenerar = $"{UrlArchivoBackup}backup_{DateTime.Now:dd}_{DateTime.Now:MM}_{DateTime.Now:yyyy}.bak";
             }
-
-            if (File.Exists(UrlArchivoBackup))
+            else
             {
-                File.Delete(UrlArchivoBackup);
+                NombreBackupAGenerar = UrlArchivoBackup;
+            }         
+
+            if (File.Exists(NombreBackupAGenerar))
+            {
+                try
+                {
+                    File.Delete(NombreBackupAGenerar);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+
+                Console.WriteLine($"Eliminado archivo {NombreBackupAGenerar} porque ya existe");
             }
 
             try
             {
                 using (SqlConnection conexion = new SqlConnection(CadConexionBd))
                 {
-                    string sql = $@"BACKUP DATABASE [ExpertManager] TO DISK='{UrlArchivoBackup}';";
+                    string sql = $@"BACKUP DATABASE [ExpertManager] TO DISK='{NombreBackupAGenerar}';";
 
                     using (SqlCommand comando = new SqlCommand(sql, conexion))
                     {
@@ -85,6 +100,43 @@ namespace BackupBd
             {
                 Console.WriteLine(e);
                 throw;
+            }
+        }
+
+        public void EliminarBackupsMasDe5Dias()
+        {
+            string separador;
+
+            if (EsContenedor == "S")
+            {
+                separador = "/";
+            }
+            else
+            {
+                separador = "\\";
+            }
+
+            foreach (string archivo in Directory.GetFiles(UrlArchivoBackup))
+            {
+                if (!archivo.Contains("backup_"))
+                {
+                    continue;
+                }
+                
+                string[] partesNombreArchivo = archivo.Split(separador);
+                string nombreArchivoConFecha = partesNombreArchivo[partesNombreArchivo.Length - 1];
+                int dia = int.Parse(nombreArchivoConFecha.Substring(7, 2));
+                int mes = int.Parse(nombreArchivoConFecha.Substring(10, 2));
+                int anio = int.Parse(nombreArchivoConFecha.Substring(13, 4));
+
+                DateTime fechaBackup = new DateTime(anio, mes, dia);
+                double numDiasDiferencia = (DateTime.Now.Date - fechaBackup).TotalDays;
+
+                if (numDiasDiferencia >= 5)
+                {
+                    File.Delete(archivo);
+                    Console.WriteLine($"Eliminado archivo backup {archivo} porque tiene 5 o más días antigüedad");
+                }
             }
         }
     }
